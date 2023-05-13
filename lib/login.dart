@@ -34,6 +34,12 @@ class LoginScreen extends StatelessWidget {
             additionalSignupFields: const [
               UserFormField(keyName: 'Name',userType: LoginUserType.name,icon: Icon(Icons.person))
             ],
+            passwordValidator: (String? value) {
+            if (value == null || value.isEmpty || value.length <= 6) {
+              return 'Password is too short!';
+            }
+            return null;
+          },
             onSignup: (SignupData) async {
               try {
                 await _auth
@@ -43,6 +49,7 @@ class LoginScreen extends StatelessWidget {
                     await postDetailsToFirestore(),
                 })
                     .catchError((e) async {
+
                 });
               } on FirebaseAuthException catch (error) {
                 switch (error.code) {
