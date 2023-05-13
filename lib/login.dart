@@ -47,10 +47,8 @@ class LoginScreen extends StatelessWidget {
                     .then((value) async => {
                 userModel.firstName =SignupData.additionalSignupData!['Name'],
                     await postDetailsToFirestore(),
-                })
-                    .catchError((e) async {
-
                 });
+                return null;
               } on FirebaseAuthException catch (error) {
                 switch (error.code) {
                   case "invalid-email":
@@ -74,6 +72,7 @@ class LoginScreen extends StatelessWidget {
                   default:
                     errorMessage = "An undefined Error happened.";
                 }
+                return errorMessage;
               }
             },
             onLogin: (LoginData ) async {
@@ -82,6 +81,7 @@ class LoginScreen extends StatelessWidget {
                     .signInWithEmailAndPassword(email: LoginData.name, password: LoginData.password)
                     .then((uid)  => {
                 });
+                return null;
               } on FirebaseAuthException catch (error) {
                 switch (error.code) {
                   case "invalid-email":
@@ -106,7 +106,7 @@ class LoginScreen extends StatelessWidget {
                   default:
                     errorMessage = "An undefined Error happened.";
                 }
-                print(error.code);
+                return errorMessage;
               }
 
             }, onRecoverPassword: (String ) {  },
@@ -157,3 +157,6 @@ class LoginScreen extends StatelessWidget {
     }
   }
 }
+
+
+// done ! github?
