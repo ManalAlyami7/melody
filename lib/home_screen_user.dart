@@ -15,6 +15,7 @@ class ItemListScreen extends StatefulWidget {
 class _ItemListScreenState extends State<ItemListScreen> {
   late Stream<QuerySnapshot<Map<String, dynamic>>> _itemsStream;
 
+  final _auth  = FirebaseAuth.instance;
   @override
   void initState() {
     super.initState();

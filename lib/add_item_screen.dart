@@ -37,7 +37,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Item'),
+        title: const Text('Add Item'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -49,27 +49,27 @@ class _AddItemScreenState extends State<AddItemScreen> {
               _buildImagePreview(),
               TextField(
                 controller: _itemNameController,
-                decoration: InputDecoration(labelText: 'Item Name'),
+                decoration: const InputDecoration(labelText: 'Item Name'),
               ),TextField(
                 controller: _descriptionController,
-                decoration: InputDecoration(labelText: 'Description'),
+                decoration: const InputDecoration(labelText: 'Description'),
               ),
               TextField(
                 controller: _sizeController,
-                decoration: InputDecoration(labelText: 'Size'),
+                decoration: const InputDecoration(labelText: 'Size'),
               ),
               TextField(
                 controller: _qualityController,
-                decoration: InputDecoration(labelText: 'Quality'),
+                decoration: const InputDecoration(labelText: 'Quality'),
               ),
               TextField(
                 controller: _priceController,
-                decoration: InputDecoration(labelText: 'Price'),
+                decoration: const InputDecoration(labelText: 'Price'),
                 keyboardType: TextInputType.number,
-              ),SizedBox(height: 16.0),
+              ),const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: _isUploading ? null : _addItem,
-                child: _isUploading ? CircularProgressIndicator() : Text('Add Item'),
+                child: _isUploading ? const CircularProgressIndicator() : const Text('Add Item'),
               ),
             ],
           ),
@@ -84,14 +84,14 @@ class _AddItemScreenState extends State<AddItemScreen> {
       children: [
         ElevatedButton.icon(
           onPressed: _isUploading ? null : _pickImage,
-          icon: Icon(Icons.add),
-          label: Text('Add Image'),
+          icon: const Icon(Icons.add),
+          label: const Text('Add Image'),
         ),
-        SizedBox(width: 16.0),
+        const SizedBox(width: 16.0),
         ElevatedButton.icon(
           onPressed: _isUploading ? null : _clearImages,
-          icon: Icon(Icons.delete),
-          label: Text('Clear Images'),
+          icon: const Icon(Icons.delete),
+          label: const Text('Clear Images'),
         ),
       ],
     );
@@ -170,12 +170,12 @@ class _AddItemScreenState extends State<AddItemScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Error'),
-          content: Text('Please provide all the required information.'),
+          title: const Text('Error'),
+          content: const Text('Please provide all the required information.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         ),
@@ -245,12 +245,12 @@ class _AddItemScreenState extends State<AddItemScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Error'),
+          title: const Text('Error'),
           content: Text(error.toString()),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         ),

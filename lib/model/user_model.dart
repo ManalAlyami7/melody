@@ -1,4 +1,6 @@
 
+import 'dart:ffi';
+
 class UserModel {
   String? uid;
   String? email;

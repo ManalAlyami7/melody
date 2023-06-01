@@ -6,15 +6,32 @@ import 'package:flutter_login/flutter_login.dart';
 import 'package:melody/home_screen_user.dart';
 
 import 'package:melody/model/user_model.dart';
+import 'package:melody/tenantHome.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
+import 'bar.dart';
 
-class LoginScreen extends StatelessWidget {
+
+class LoginScreen extends StatefulWidget {
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   String? errorMessage;
+
   List<String> userType =['lessor','tenant'];
+
   String user1 = 'lessor';
+
   final _auth = FirebaseAuth.instance;
+
   UserModel userModel = UserModel();
+
+  String userRole="";
+
+  bool isSignup =false;
+
   @override
 
   Widget build(BuildContext context) {
@@ -22,7 +39,16 @@ class LoginScreen extends StatelessWidget {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder:(context , snapshot){
         if(snapshot.hasData){
-          return  const ItemListScreen();
+          DocumentReference userRef = FirebaseFirestore.instance.collection('Users').doc(snapshot.data?.uid);
+          userRef.get().then((DocumentSnapshot duc) {
+            userRole = duc['role'];
+            print(userRole);
+        });
+          if(userRole == 'lessor') {
+            return const ItemListScreen();
+          }else{
+            return const Bar();
+          }
         }
         else{
           return  FlutterLogin(
@@ -34,21 +60,27 @@ class LoginScreen extends StatelessWidget {
             additionalSignupFields: const [
               UserFormField(keyName: 'Name',userType: LoginUserType.name,icon: Icon(Icons.person))
             ],
+
             passwordValidator: (String? value) {
-            if (value == null || value.isEmpty || value.length <= 6) {
-              return 'Password is too short!';
-            }
-            return null;
-          },
+              if (value == null || value.isEmpty || value.length <= 6) {
+                return 'Password is too short!';
+              }
+              return null;
+            },
+            hideForgotPasswordButton: true,
             onSignup: (SignupData) async {
               try {
+                isSignup = true;
+                setState(() {
+                });
                 await _auth
                     .createUserWithEmailAndPassword(email: SignupData.name??'', password: SignupData.password??'')
                     .then((value) async => {
                 userModel.firstName =SignupData.additionalSignupData!['Name'],
                     await postDetailsToFirestore(),
+                })
+                    .catchError((e) async {
                 });
-                return null;
               } on FirebaseAuthException catch (error) {
                 switch (error.code) {
                   case "invalid-email":
@@ -72,16 +104,15 @@ class LoginScreen extends StatelessWidget {
                   default:
                     errorMessage = "An undefined Error happened.";
                 }
-                return errorMessage;
               }
             },
             onLogin: (LoginData ) async {
               try {
+                isSignup = false;
                 await _auth
                     .signInWithEmailAndPassword(email: LoginData.name, password: LoginData.password)
-                    .then((uid)  => {
+                    .then((uid) {
                 });
-                return null;
               } on FirebaseAuthException catch (error) {
                 switch (error.code) {
                   case "invalid-email":
@@ -106,11 +137,12 @@ class LoginScreen extends StatelessWidget {
                   default:
                     errorMessage = "An undefined Error happened.";
                 }
-                return errorMessage;
+                print(error.code);
               }
 
-            }, onRecoverPassword: (String ) {  },
-            headerWidget:Padding(
+            },
+            headerWidget:
+            Padding(
               padding: const EdgeInsets.only(bottom: 20,),
               child: Center(
                 child: ToggleSwitch(
@@ -122,41 +154,29 @@ class LoginScreen extends StatelessWidget {
                   labels: const ['lessor', 'tenant'],
                   onToggle: (index) {
                     user1 = userType[index??0];
-                    print('switched to: $user1');
                   },
                 ),
               ),
             ),
+            onRecoverPassword: (String ) {  },
 
           );
         }
       } ,
     );
   }
+
   postDetailsToFirestore() async {
     // calling our firestore
     // calling our user model
     // sedning these values
 
-    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     User? user = _auth.currentUser;
     // writing all the values
     userModel.email = user!.email;
     userModel.uid = user.uid;
     userModel.role = user1;
-    // await firebaseFirestore
-    //     .collection("Users")
-    //     .doc(user.uid)
-    //     .set(userModel.toMap());
     final docUser = FirebaseFirestore.instance.collection('Users').doc(user.uid);
     await docUser.set(userModel.toMap());
-    if (userModel.role.toString() == 'tenant') {
-    print(userModel.role);
-    } else {
-      print(userModel.role);
-    }
   }
 }
-
-
-// done ! github?
