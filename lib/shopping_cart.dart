@@ -1,4 +1,6 @@
 
+
+
 import 'package:cloud_firestore/cloud_firestore.dart' show DocumentReference, DocumentSnapshot, FieldValue, FirebaseFirestore, QuerySnapshot;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +17,7 @@ class ShoppingCartHome extends StatefulWidget {
 
 class ShoppingCartState extends State<ShoppingCartHome> {
   late Stream<QuerySnapshot<Map<String, dynamic>>> _itemsTenantStream;
-
+  final _auth = FirebaseAuth.instance;
   @override
   void initState() {
     super.initState();
@@ -44,7 +46,7 @@ class ShoppingCartState extends State<ShoppingCartHome> {
 
           final items = snapshot.data!.docs;
 
-          if (items.isEmpty) {
+          if (snapshot.hasData == false) {
             return const Center(child: Text('No items found.'));
           }
           return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
@@ -53,7 +55,7 @@ class ShoppingCartState extends State<ShoppingCartHome> {
                 AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> sp) {
               if (sp.hasError) {
                 return Center(
-                    child: Text('Failed to load items: ${snapshot.error}'));
+                    child: Text('Failed to load items: ${sp.error}'));
               }
 
               if (sp.connectionState == ConnectionState.waiting) {
@@ -70,44 +72,59 @@ class ShoppingCartState extends State<ShoppingCartHome> {
                 itemCount: fiItems.length,
                 itemBuilder: (context, index) {
                   final item = fiItems[index].data();
-
-                  return Padding(
+                  if (fiItems.isEmpty){
+                    return const Center(child: Text('NO ITEMS'));
+                  }
+                  else {
+                    return Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: InkWell(
-                      onTap: () =>
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) => InformationOfItem(item: item,))),
-                      child: Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(width: 2, color: Colors.blue)
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            SizedBox(
-                                height: 100,
-                                width: 150,
-                                child: item['imageUrls'].isNotEmpty
-                                    ? Image.network(
-                                  item['imageUrls'][0], fit: BoxFit.contain,)
-                                    : Container()),
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                children: [
-                                  Text(item['itemName'],
-                                    style: TextStyle(fontSize: 20),),
-                                  Text(item['price'].toString() + ' \$',
-                                    style: TextStyle(fontSize: 20),),
-                                ],
-                              ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(width: 2, color: Colors.blue)
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(
+                              height: 100,
+                              width: 150,
+                              child: item['imageUrls'].isNotEmpty
+                                  ? Image.network(
+                                item['imageUrls'][0], fit: BoxFit.contain,)
+                                  : Container()),
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              children: [
+                                Text(item['itemName'],
+                                  style: TextStyle(fontSize: 20),),
+                                Text(item['price'].toString() + ' \$',
+                                  style: TextStyle(fontSize: 20),),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            if (_auth.currentUser == null){
+                              return;
+                            }
+                            final docUser = FirebaseFirestore.instance.collection('Users').doc(_auth.currentUser!.uid);
+                            var user = (await docUser.get()).data();
+                            var items = user?['items'] ?? [];
+                            docUser.update({
+                              'items': FieldValue.arrayRemove([item['itemName']]),
+                            });
+                          },
+                          child: const Text('Return'),),
+                      ),
+                        ],
                       ),
                     ),
                   );
+                  }
                 },
               );
             },

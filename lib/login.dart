@@ -38,16 +38,25 @@ class _LoginScreenState extends State<LoginScreen> {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder:(context , snapshot){
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          setState(() {
+
+          });
+          return Center(child: Text(errorMessage!)) ;
+        }
         if(snapshot.hasData){
           DocumentReference userRef = FirebaseFirestore.instance.collection('Users').doc(snapshot.data?.uid);
           userRef.get().then((DocumentSnapshot duc) {
             userRole = duc['role'];
             print(userRole);
         });
-          if(userRole == 'lessor') {
-            return const ItemListScreen();
-          }else{
+          if(userRole == 'tenant') {
             return const Bar();
+          }else{
+            return const ItemListScreen();
           }
         }
         else{
@@ -104,6 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   default:
                     errorMessage = "An undefined Error happened.";
                 }
+                return errorMessage;
               }
             },
             onLogin: (LoginData ) async {
@@ -138,6 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     errorMessage = "An undefined Error happened.";
                 }
                 print(error.code);
+                return errorMessage;
               }
 
             },
@@ -154,6 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   labels: const ['lessor', 'tenant'],
                   onToggle: (index) {
                     user1 = userType[index??0];
+                    print(user1);
                   },
                 ),
               ),

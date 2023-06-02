@@ -61,7 +61,7 @@ class _TenantHomeState extends State<TenantHome> {
               var users = sp.data!.docs;
               var user = users.firstWhere((element) =>
               element['uid'] == FirebaseAuth.instance.currentUser!.uid);
-              List<dynamic> x = user?['items'] ?? [];
+              List<dynamic> x = user.data()?['items'] ?? [];
 
               var fiItems = items.where((element) =>
                   !x.contains(element.data()?['itemName'])).toList();
